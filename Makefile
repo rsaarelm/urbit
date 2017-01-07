@@ -83,7 +83,7 @@ ifeq ($(OS),osx)
   OSLIBS=-framework CoreServices -framework CoreFoundation
 endif
 ifeq ($(OS),linux)
-  OSLIBS=-lpthread -lrt -lcurses -lz
+  OSLIBS=-lpthread -lrt -lcurses -lz -ldl
   DEFINES=-D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
 endif
 ifeq ($(OS),bsd)
@@ -129,6 +129,7 @@ CFLAGS+= $(COSFLAGS) -ffast-math \
 	-Ioutside/scrypt \
 	-Ioutside/softfloat-3/source/include \
 	-Ioutside/murmur3 \
+	-Ioutside/urbit-u3-rs/include \
 	$(DEFINES) \
 	$(MDEFINES)
 
@@ -413,6 +414,8 @@ LIBSCRYPT=outside/scrypt/scrypt.a
 
 LIBSOFTFLOAT=outside/softfloat-3/build/Linux-386-GCC/softfloat.a
 
+LIBU3RS=outside/urbit-u3-rs/target/debug/libu3rs.a
+
 TAGS=\
        .tags \
        .etags \
@@ -466,17 +469,20 @@ $(LIBSCRYPT):
 $(LIBSOFTFLOAT):
 	$(MAKE) -C outside/softfloat-3/build/Linux-386-GCC
 
+$(LIBU3RS):
+	cd outside/urbit-u3-rs; cargo build
+
 $(V_OFILES): include/vere/vere.h
 
 ifdef NO_SILENT_RULES
-$(BIN)/urbit: $(LIBCOMMONMARK) $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBSCRYPT) $(LIBSOFTFLOAT)
+$(BIN)/urbit: $(LIBCOMMONMARK) $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBSCRYPT) $(LIBSOFTFLOAT) $(LIBU3RS)
 	mkdir -p $(BIN)
-	$(CLD) $(CLDOSFLAGS) -o $(BIN)/urbit $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBS) $(LIBCOMMONMARK) $(LIBSCRYPT) $(LIBSOFTFLOAT)
+	$(CLD) $(CLDOSFLAGS) -o $(BIN)/urbit $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBS) $(LIBCOMMONMARK) $(LIBSCRYPT) $(LIBSOFTFLOAT) $(LIBU3RS)
 else
-$(BIN)/urbit: $(LIBCOMMONMARK) $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBSCRYPT) $(LIBSOFTFLOAT)
+$(BIN)/urbit: $(LIBCOMMONMARK) $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBSCRYPT) $(LIBSOFTFLOAT) $(LIBU3RS)
 	@echo "    CCLD  $(BIN)/urbit"
 	@mkdir -p $(BIN)
-	@$(CLD) $(CLDOSFLAGS) -o $(BIN)/urbit $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBS) $(LIBCOMMONMARK) $(LIBSCRYPT) $(LIBSOFTFLOAT)
+	@$(CLD) $(CLDOSFLAGS) -o $(BIN)/urbit $(VERE_OFILES) $(LIBUV) $(LIBED25519) $(LIBANACHRONISM) $(LIBS) $(LIBCOMMONMARK) $(LIBSCRYPT) $(LIBSOFTFLOAT) $(LIBU3RS)
 endif
 
 tags: ctags etags gtags cscope
@@ -523,4 +529,4 @@ distclean: clean $(LIBUV_MAKEFILE)
 	$(MAKE) -C outside/scrypt clean
 	$(MAKE) -C outside/softfloat-3/build/Linux-386-GCC clean
 
-.PHONY: clean debbuild debinstalldistclean etags osxpackage tags
+.PHONY: clean debbuild debinstalldistclean etags osxpackage tags $(LIBU3RS)
