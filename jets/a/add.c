@@ -7,7 +7,7 @@
 /* functions
 */
   u3_noun
-  u3qa_add(u3_atom a,
+  u3qa_add_orig(u3_atom a,
            u3_atom b)
   {
     if ( _(u3a_is_cat(a)) && _(u3a_is_cat(b)) ) {
