@@ -1,0 +1,15 @@
+[package]
+name = "u3rs"
+version = "0.1.0"
+authors = ["Risto Saarelma <risto.saarelma@iki.fi>"]
+description = "Jet implementation machinery for Urbit C runtime"
+repository = "https://github.com/rsaarelm/urbit-u3-rs"
+license = "MIT OR Apache-2.0"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+libc = "0.2"
+rust-gmp = "0.4"
+u3-alloc = { path = "u3-alloc" }
